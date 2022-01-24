@@ -31,6 +31,21 @@ $app->get('/hello/{name}[/]',
     }
 );
 
+$app->get('/ciao/{name}[/]',
+    function (Request $rq, Response $rs, array $args): Response {
+        $data['args']        = $args['name'];
+        $data['method']      = $rq->getMethod();
+        $data['accept']      = $rq->getHeader('Accept');
+        $data['query param'] = $rq->getQueryParam('p','no p');
+
+        // to do : docker-compose, git pull les deux dossier
+        // reprendre :
+        // video 2, 3,17
+        $rs = $rs->withHeader("Content-Type", "application/json");
+        $rs->getBody()->write(json_encode($data));
+        return $rs;
+    }
+);
 
 
 
