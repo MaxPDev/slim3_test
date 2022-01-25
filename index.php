@@ -7,6 +7,8 @@ require 'vendor/autoload.php';
 
 $app = new \Slim\App;
 
+// vidéo 1
+
 $app->get('/huba/{name}[/]',
     function (Request $req, Response $resp, $args) {
         $name = $args['name'];
@@ -31,17 +33,31 @@ $app->get('/hello/{name}[/]',
     }
 );
 
-$app->get('/ciao/{name}[/]',
+// video 2
+
+$app->post('/ciao/{name}[/]',
     function (Request $rq, Response $rs, array $args): Response {
         $data['args']        = $args['name'];
         $data['method']      = $rq->getMethod();
         $data['accept']      = $rq->getHeader('Accept');
         $data['query param'] = $rq->getQueryParam('p','no p');
 
-        // to do : docker-compose, git pull les deux dossier
-        // reprendre :
-        // video 2, 3,17
+        $data['content-type']= $rq->getContentType();
+        // slim décode automatique le contenu en fonction de son type avec getParsedBody (json, from, text...)
+        $data['body']        = $rq->getParsedBody();
+
+        // PSR7 : objet non modifiable, non créer des nvx objets. 
+        // Par contre : body modifiable ! Donc on appelle la commande
+        $rs = $rs->withStatus(202);
+        $rs = $rs->withHeader('application-header', 'some value');
+
         $rs = $rs->withHeader("Content-Type", "application/json");
+
+        // syntax possible, puis la méthode renvoie à chaque fois le résultat :
+        // $rs = $rs->withStatus(202)->withHeader('application-header', 'some value')->withHeader("Content-Type", "application/json");
+
+
+
         $rs->getBody()->write(json_encode($data));
         return $rs;
     }
