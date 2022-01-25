@@ -5,7 +5,15 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 require_once __DIR__ . '/../src/vendor/autoload.php';
 
-$app = new \Slim\App;
+
+// video 3 contaeneur (de dépendance ?)
+$config = [
+    'dbfile' => __DIR__ . '/../src/conf/db.conf.ini',
+    'settings' => ['displayErrorDetails'=>true]
+];
+$container = new \Slim\Container($config);
+
+$app = new \Slim\App($container);
 
 // vidéo 1
 
@@ -61,6 +69,25 @@ $app->post('/ciao/{name}[/]',
         $rs->getBody()->write(json_encode($data));
         return $rs;
     }
+);
+
+
+    // Video 3
+    // pour rendre disponible le contenur : closure binding :
+    // la fonction anonyme (= closure) est lié au contenu par $this. $this <=> $container
+    $app->get('/video3/{name}[/]',
+        function(Request $rq, Response $rs, array $args) : Response {
+            $name = $args['name'];
+
+            // $dbfile = $this['dbfile']; 
+            // soit on y accède par tableau['valeur'], ou par notation d'objet :
+            $dbfile = $this->dbfile;
+
+            // 6:43
+
+            $rs->getBody()->write("<h1>Hello $name, </h1> <h2>$dbfile</h2>");
+            return $rs;
+        }
 );
 
 
