@@ -7,10 +7,17 @@ require_once __DIR__ . '/../src/vendor/autoload.php';
 
 
 // video 3 contaeneur (de dépendance ?)
-$config = [
-    'dbfile' => __DIR__ . '/../src/conf/db.conf.ini',
-    'settings' => ['displayErrorDetails'=>true]
-];
+// $config = [
+//     // 'dbfile' => __DIR__ . '/../src/conf/db.conf.ini',
+//     'settings' => ['dbfile' => __DIR__ . '/../src/conf/db.conf.ini',
+//                 'displayErrorDetails'=>true]
+// ];
+
+// => déplacé dans le settings.php dans conf
+
+// Pourquoi pas un import ?
+$config = require_once __DIR__ . '/../src/conf/settings.php';
+
 $container = new \Slim\Container($config);
 
 $app = new \Slim\App($container);
@@ -54,7 +61,7 @@ $app->post('/ciao/{name}[/]',
         // slim décode automatique le contenu en fonction de son type avec getParsedBody (json, from, text...)
         $data['body']        = $rq->getParsedBody();
 
-        // PSR7 : objet non modifiable, non créer des nvx objets. 
+        // PSR7 : objet non modifiable, non créer des nvx objets.
         // Par contre : body modifiable ! Donc on appelle la commande
         $rs = $rs->withStatus(202);
         $rs = $rs->withHeader('application-header', 'some value');
@@ -79,11 +86,9 @@ $app->post('/ciao/{name}[/]',
         function(Request $rq, Response $rs, array $args) : Response {
             $name = $args['name'];
 
-            // $dbfile = $this['dbfile']; 
+            // $dbfile = $this['dbfile'];
             // soit on y accède par tableau['valeur'], ou par notation d'objet :
-            $dbfile = $this->dbfile;
-
-            // 6:43
+            $dbfile = $this->settings['dbfile'];
 
             $rs->getBody()->write("<h1>Hello $name, </h1> <h2>$dbfile</h2>");
             return $rs;
